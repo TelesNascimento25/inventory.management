@@ -2,14 +2,13 @@ package com.join.inventory.model;
 
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -37,7 +36,7 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles; 
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Products> products;
 
 }
