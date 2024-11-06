@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "category")
+@Table(name = "categories")
 public class Category {
 
 	@Id
@@ -32,6 +32,6 @@ public class Category {
 	private String description;
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-	private List<Products> products;
+	private List<Product> products;
 
 }

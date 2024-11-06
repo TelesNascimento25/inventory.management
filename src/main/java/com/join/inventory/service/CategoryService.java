@@ -1,8 +1,10 @@
 package com.join.inventory.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.join.inventory.exception.CategoryNotFoundException;
@@ -27,21 +29,27 @@ public class CategoryService {
             throw new DuplicateCategoryException(createCategoryRequest.getName());
         }
 
-        Category category = new Category();
-        category.setName(createCategoryRequest.getName());
-        category.setDescription(createCategoryRequest.getDescription());
+        var category = Category.builder()
+            .name(createCategoryRequest.getName())
+            .description(createCategoryRequest.getDescription())
+        .build();
+
         categoryRepository.save(category);
 
-        return new CreateCategoryResponse(category.getId(), category.getName(), category.getDescription());
+        return CreateCategoryResponse.fromCategory(category);
     }
 
     public CreateCategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest updateCategoryRequest) {
-        Category category = findCategoryById(categoryId);
-        category.setName(updateCategoryRequest.getName());
-        category.setDescription(updateCategoryRequest.getDescription());
-        categoryRepository.save(category);
+        var category = findCategoryById(categoryId);
+        category = Category.builder()
+            .id(category.getId())
+            .name(StringUtils.defaultIfBlank(updateCategoryRequest.getName().trim(), category.getName()))
+            .description(StringUtils.defaultIfBlank(updateCategoryRequest.getDescription().trim(), category.getDescription()))
+        .build();
 
-        return new CreateCategoryResponse(category.getId(), category.getName(), category.getDescription());
+        category = categoryRepository.save(category);
+
+        return CreateCategoryResponse.fromCategory(category);
     }
 
     public void deleteCategory(Long categoryId) {
@@ -51,13 +59,13 @@ public class CategoryService {
 
     public List<CreateCategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(category -> new CreateCategoryResponse(category.getId(), category.getName(), category.getDescription()))
+                .map(CreateCategoryResponse::fromCategory)
                 .collect(Collectors.toList());
     }
 
     public CreateCategoryResponse getCategoryById(Long categoryId) {
         Category category = findCategoryById(categoryId);
-        return new CreateCategoryResponse(category.getId(), category.getName(), category.getDescription());
+        return CreateCategoryResponse.fromCategory(category);
     }
 
     private Category findCategoryById(Long categoryId) {

@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.join.inventory.model.Category;
-import com.join.inventory.model.Products;
+import com.join.inventory.model.Product;
 
 @Repository
-public interface ProductsRepository extends JpaRepository<Products, Long> {
+public interface ProductsRepository extends JpaRepository<Product, Long> {
 
     interface ProductDetails {
         String getName();
@@ -23,13 +23,13 @@ public interface ProductsRepository extends JpaRepository<Products, Long> {
             "WHERE p.category.id = :categoryId")
     List<ProductDetails> getProductDetailsByCategory(Long categoryId);
 
-    List<Products> findByPriceGreaterThan(Double price);
+    List<Product> findByPriceGreaterThan(Double price);
 
-    List<Products> findByCategory(Category category);
+    List<Product> findByCategory(Category category);
     
-    List<Products> findByCategoryId(Long categoryId);
+    List<Product> findByCategoryId(Long categoryId);
     
-    List<Products> findByCategoryName(String categoryName);
+    List<Product> findByCategoryName(String categoryName);
     
     boolean existsByName(String name);
 }

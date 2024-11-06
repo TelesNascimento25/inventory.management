@@ -1,15 +1,19 @@
 package com.join.inventory.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.join.inventory.exception.CategoryNotFoundException;
 import com.join.inventory.exception.DuplicateProductException;
 import com.join.inventory.exception.ProductNotFoundException;
-import com.join.inventory.model.Category;
-import com.join.inventory.model.Products;
+import com.join.inventory.model.Product;
 import com.join.inventory.model.dto.CreateProductRequest;
 import com.join.inventory.model.dto.CreateProductResponse;
 import com.join.inventory.model.dto.UpdateProductRequest;
@@ -17,83 +21,101 @@ import com.join.inventory.repository.CategoryRepository;
 import com.join.inventory.repository.ProductsRepository;
 
 @Service
+@AllArgsConstructor
 public class ProductService {
 
     private final ProductsRepository productRepository;
     private final CategoryRepository categoryRepository;
-
-    public ProductService(ProductsRepository productRepository, CategoryRepository categoryRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-    }
 
     public CreateProductResponse createProduct(CreateProductRequest createProductRequest) {
         if (productRepository.existsByName(createProductRequest.getName())) {
             throw new DuplicateProductException(createProductRequest.getName());
         }
 
-        Category category = categoryRepository.findById(createProductRequest.getCategoryId())
+        var category = categoryRepository.findById(createProductRequest.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(createProductRequest.getCategoryId()));
 
-        Products product = new Products();
-        product.setName(createProductRequest.getName());
-        product.setDescription(createProductRequest.getDescription());
-        product.setPrice(createProductRequest.getPrice());
-        product.setCategory(category);
+        var product = Product.builder()
+            .name(createProductRequest.getName())
+            .description(createProductRequest.getDescription())
+            .price(createProductRequest.getPriceInCents().divide(BigDecimal.valueOf(100), RoundingMode.UNNECESSARY).doubleValue())
+            .category(category)
+        .build();
 
-        productRepository.save(product);
+        product = productRepository.save(product);
 
-        return new CreateProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory().getId());
+        return CreateProductResponse.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .description(product.getDescription())
+            .price(product.getPrice())
+            .categoryId(product.getCategory().getId())
+        .build();
     }
 
     public CreateProductResponse getProductDetails(Long productId) {
-        Products product = productRepository.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        return new CreateProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory().getId());
+        return CreateProductResponse.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .description(product.getDescription())
+            .price(product.getPrice())
+            .categoryId(product.getCategory().getId())
+        .build();
     }
 
     public List<CreateProductResponse> getProductsByCategory(String category) {
-        List<Products> products = productRepository.findByCategoryName(category);
+        List<Product> products = productRepository.findByCategoryName(category);
 
         if (products.isEmpty()) {
             throw new ProductNotFoundException(null); 
         }
 
-        return products.stream().map(product -> new CreateProductResponse(product.getId(), product.getName(),
-                product.getDescription(), product.getPrice(), product.getCategory().getId())).collect(Collectors.toList());
+        return products.stream()
+                .map(CreateProductResponse::fromProduct)
+                .collect(Collectors.toList());
     }
 
     public List<CreateProductResponse> getAllProducts() {
-        List<Products> products = productRepository.findAll();
+        var products = productRepository.findAll();
 
-        return products.stream().map(product -> new CreateProductResponse(product.getId(), product.getName(),
-                product.getDescription(), product.getPrice(), product.getCategory().getId())).collect(Collectors.toList());
+        return products.stream()
+                .map(CreateProductResponse::fromProduct)
+                .collect(Collectors.toList());
     }
 
     public CreateProductResponse updateProduct(Long productId, UpdateProductRequest updateProductRequest) {
-        Products product = productRepository.findById(productId)
+        var product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        product.setName(updateProductRequest.getName());
-        product.setDescription(updateProductRequest.getDescription());
-        product.setPrice(updateProductRequest.getPrice());
-
-        Category category = categoryRepository.findById(updateProductRequest.getCategoryId())
+        var category = categoryRepository.findById(updateProductRequest.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(updateProductRequest.getCategoryId()));
 
-        product.setCategory(category);
+        product = Product.builder()
+            .id(product.getId())
+            .name(StringUtils.defaultIfBlank(updateProductRequest.getName().trim(), product.getName()))
+            .description(StringUtils.defaultIfBlank(updateProductRequest.getDescription().trim(), product.getDescription()))
+            .price(Optional.ofNullable(updateProductRequest.getPrice()).orElse(product.getPrice()))
+            .category(Optional.ofNullable(category).orElse(product.getCategory()))
+        .build();
 
         productRepository.save(product);
 
-        return new CreateProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory().getId());
+        return CreateProductResponse.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .description(product.getDescription())
+            .price(product.getPrice())
+            .categoryId(product.getCategory().getId())
+        .build();
     }
 
-    public boolean deleteProduct(Long productId) {
-        Products product = productRepository.findById(productId)
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
         productRepository.delete(product);
-        return true;
     }
 }

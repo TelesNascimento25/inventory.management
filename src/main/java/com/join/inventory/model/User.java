@@ -37,6 +37,6 @@ public class User {
     private List<String> roles; 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Products> products;
+    private List<Product> products;
 
 }
