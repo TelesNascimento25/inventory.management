@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,7 @@ import lombok.Setter;
 public class Category {
 
 	@Id
+	@Embedded
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
