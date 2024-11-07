@@ -1,4 +1,4 @@
-package com.join.inventory.exception;
+package com.join.inventory.controller;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.join.inventory.exception.ApiException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,8 +37,8 @@ public class GlobalExceptionHandler {
         Map<String, List<String>> errors = ex.getBindingResult().getFieldErrors().stream()
                 .filter(error -> error.getDefaultMessage() != null)
                 .collect(Collectors.groupingBy(
-                        error -> error.getField(),
-                        Collectors.mapping(error -> error.getDefaultMessage(), Collectors.toList())
+                        FieldError::getField,
+                        Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())
                 ));
 
         Map<String, Object> response = new HashMap<>();

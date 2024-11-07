@@ -1,4 +1,4 @@
-package com.join.inventory.model;
+package com.join.inventory.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;

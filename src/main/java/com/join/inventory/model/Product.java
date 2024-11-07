@@ -1,18 +1,26 @@
 package com.join.inventory.model;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -29,14 +37,16 @@ public class Product {
 
 	private String name;
 	private String description;
-	private Double price;
+	private BigDecimal price;
 
-	@ManyToOne
-	@JoinColumn(name = "category_id", nullable = false)
-	private Category category;
-	
-	@ManyToOne
-    @JoinColumn(name = "user_id") 
-    private User user;
+	private Long categoryId;
+
+	@CreationTimestamp
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
+
+	@UpdateTimestamp
+	@Column(insertable = false)
+	private LocalDateTime updatedAt;
 
 }

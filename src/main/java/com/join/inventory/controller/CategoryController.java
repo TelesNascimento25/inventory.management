@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.join.inventory.model.dto.CreateCategoryRequest;
-import com.join.inventory.model.dto.CreateCategoryResponse;
+import com.join.inventory.model.dto.CategoryDTO;
 import com.join.inventory.model.dto.UpdateCategoryRequest;
 import com.join.inventory.service.CategoryService;
 
@@ -31,15 +31,15 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateCategoryResponse> createCategory(@RequestBody @Valid CreateCategoryRequest createCategoryRequest) {
-        CreateCategoryResponse createdCategory = categoryService.createCategory(createCategoryRequest);
+    public ResponseEntity<CategoryDTO> createCategory(@RequestBody @Valid CreateCategoryRequest createCategoryRequest) {
+        var createdCategory = categoryService.createCategory(createCategoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CreateCategoryResponse> updateCategory(@PathVariable Long categoryId,
-                                                                 @RequestBody @Valid UpdateCategoryRequest updateCategoryRequest) {
-        CreateCategoryResponse updatedCategory = categoryService.updateCategory(categoryId, updateCategoryRequest);
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId,
+                                                      @RequestBody @Valid UpdateCategoryRequest updateCategoryRequest) {
+        var updatedCategory = categoryService.updateCategory(categoryId, updateCategoryRequest);
         return ResponseEntity.ok(updatedCategory);
     }
 
@@ -50,8 +50,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CreateCategoryResponse>> getAllCategories() {
-        List<CreateCategoryResponse> categories = categoryService.getAllCategories();
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+        var categories = categoryService.getAllCategories();
         if (categories.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -59,8 +59,8 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<CreateCategoryResponse> getCategoryById(@PathVariable Long categoryId) {
-        CreateCategoryResponse category = categoryService.getCategoryById(categoryId);
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long categoryId) {
+        var category = categoryService.getCategoryById(categoryId);
         return ResponseEntity.ok(category);
     }
 }

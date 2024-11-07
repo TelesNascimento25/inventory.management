@@ -17,13 +17,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "users")  
 public class User {
 
     @Id
@@ -34,9 +34,5 @@ public class User {
     private String password; 
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles; 
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Product> products;
-
+    private List<String> roles;
 }

@@ -2,9 +2,12 @@ package com.join.inventory.exception;
 
 import lombok.Getter;
 
+import java.io.Serial;
+
 @Getter
 public class ApiException extends RuntimeException {
-	private static final long serialVersionUID = 1647315650756981670L;
+	@Serial
+    private static final long serialVersionUID = 1647315650756981670L;
 	
 	private final String errorCode;
     private final Object errorData;

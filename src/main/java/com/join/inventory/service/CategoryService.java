@@ -1,9 +1,10 @@
 package com.join.inventory.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -11,20 +12,17 @@ import com.join.inventory.exception.CategoryNotFoundException;
 import com.join.inventory.exception.DuplicateCategoryException;
 import com.join.inventory.model.Category;
 import com.join.inventory.model.dto.CreateCategoryRequest;
-import com.join.inventory.model.dto.CreateCategoryResponse;
+import com.join.inventory.model.dto.CategoryDTO;
 import com.join.inventory.model.dto.UpdateCategoryRequest;
 import com.join.inventory.repository.CategoryRepository;
 
 @Service
+@AllArgsConstructor
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
-
-    public CreateCategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
+    public CategoryDTO createCategory(CreateCategoryRequest createCategoryRequest) {
         if (categoryRepository.existsByName(createCategoryRequest.getName())) {
             throw new DuplicateCategoryException(createCategoryRequest.getName());
         }
@@ -36,10 +34,10 @@ public class CategoryService {
 
         categoryRepository.save(category);
 
-        return CreateCategoryResponse.fromCategory(category);
+        return CategoryDTO.fromCategory(category);
     }
 
-    public CreateCategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest updateCategoryRequest) {
+    public CategoryDTO updateCategory(Long categoryId, UpdateCategoryRequest updateCategoryRequest) {
         var category = findCategoryById(categoryId);
         category = Category.builder()
             .id(category.getId())
@@ -49,7 +47,7 @@ public class CategoryService {
 
         category = categoryRepository.save(category);
 
-        return CreateCategoryResponse.fromCategory(category);
+        return CategoryDTO.fromCategory(category);
     }
 
     public void deleteCategory(Long categoryId) {
@@ -57,15 +55,15 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    public List<CreateCategoryResponse> getAllCategories() {
+    public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(CreateCategoryResponse::fromCategory)
+                .map(CategoryDTO::fromCategory)
                 .collect(Collectors.toList());
     }
 
-    public CreateCategoryResponse getCategoryById(Long categoryId) {
-        Category category = findCategoryById(categoryId);
-        return CreateCategoryResponse.fromCategory(category);
+    public CategoryDTO getCategoryById(Long categoryId) {
+        var category = findCategoryById(categoryId);
+        return CategoryDTO.fromCategory(category);
     }
 
     private Category findCategoryById(Long categoryId) {

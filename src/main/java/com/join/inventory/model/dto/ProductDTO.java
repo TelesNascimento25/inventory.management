@@ -7,25 +7,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateProductResponse {
+public class ProductDTO {
     
     private Long id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal priceInCents;
     private Long categoryId;
 
-    public static CreateProductResponse fromProduct(Product product) {
-        return CreateProductResponse.builder()
+    public static ProductDTO fromProduct(Product product) {
+        return ProductDTO.builder()
             .id(product.getId())
             .name(product.getName())
             .description(product.getDescription())
-            .price(product.getPrice())
-            .categoryId(product.getCategory().getId())
+            .priceInCents(product.getPrice().multiply(BigDecimal.valueOf(100)))
+            .categoryId(product.getCategoryId())
         .build();
     }
 }

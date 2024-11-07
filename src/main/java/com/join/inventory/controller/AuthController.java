@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.join.inventory.model.LoginRequest;
+import com.join.inventory.model.dto.LoginRequest;
 import com.join.inventory.util.JwtTokenUtil;
 
 @RestController
@@ -23,7 +23,10 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest loginRequest) {
         var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
         );
 
         return jwtTokenUtil.generateToken(authentication.getName());
