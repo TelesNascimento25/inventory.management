@@ -27,158 +27,158 @@ import static org.mockito.Mockito.*;
 class CategoryServiceTest {
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private CategoryRepository category_repository;
 
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryService category_service;
     private Category category;
-    private CreateCategoryRequest createCategoryRequest;
-    private UpdateCategoryRequest updateCategoryRequest;
+    private CreateCategoryRequest create_category_request;
+    private UpdateCategoryRequest update_category_request;
 
-        @BeforeEach
-        void setUp() {
-            category = Category.builder()
-                    .id(1L)
-                    .name("Category Test")
-                    .description("Test Description")
-                    .build();
-            createCategoryRequest = new CreateCategoryRequest("Category Test", "Test Description");
-            updateCategoryRequest = new UpdateCategoryRequest("Updated Category", "Updated Description");
-        }
-
-    @Test
-    void testCreateCategoryIsSuccess() {
-        when(categoryRepository.existsByName("Category Test")).thenReturn(false);
-        when(categoryRepository.save(any(Category.class))).thenReturn(category);
-
-        CreateCategoryRequest createCategoryRequest = new CreateCategoryRequest("Category Test", "Test Description");
-
-        CategoryDTO createdCategoryDTO = categoryService.createCategory(createCategoryRequest);
-
-        assertNotNull(createdCategoryDTO);
-        assertEquals("Category Test", createdCategoryDTO.getName());
-        assertEquals("Test Description", createdCategoryDTO.getDescription());
-
-        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
-
-        verify(categoryRepository).existsByName("Category Test");
-        verify(categoryRepository).save(categoryCaptor.capture());
-
-        Category capturedCategory = categoryCaptor.getValue();
-        assertEquals("Category Test", capturedCategory.getName());
-        assertEquals("Test Description", capturedCategory.getDescription());
-
-        verify(categoryRepository, times(1)).save(capturedCategory);
+    @BeforeEach
+    void setUp() {
+        category = Category.builder()
+                .id(1L)
+                .name("Category Test")
+                .description("Test Description")
+                .build();
+        create_category_request = new CreateCategoryRequest("Category Test", "Test Description");
+        update_category_request = new UpdateCategoryRequest("Updated Category", "Updated Description");
     }
 
     @Test
-        void testCreateCategoryThrowsDuplicateCategoryException() {
-            when(categoryRepository.existsByName(anyString())).thenReturn(true);
+    void test_create_category_is_success() {
+        when(category_repository.existsByName("Category Test")).thenReturn(false);
+        when(category_repository.save(any(Category.class))).thenReturn(category);
 
-            DuplicateCategoryException exception = assertThrows(DuplicateCategoryException.class, () -> {
-                categoryService.createCategory(createCategoryRequest);
-            });
+        CreateCategoryRequest create_category_request = new CreateCategoryRequest("Category Test", "Test Description");
 
-            assertEquals("DUPLICATE_CATEGORY", exception.getMessage());
-            verify(categoryRepository, times(1)).existsByName("Category Test");
-            verify(categoryRepository, times(0)).save(any());
-        }
+        CategoryDTO created_category_dto = category_service.createCategory(create_category_request);
+
+        assertNotNull(created_category_dto);
+        assertEquals("Category Test", created_category_dto.getName());
+        assertEquals("Test Description", created_category_dto.getDescription());
+
+        ArgumentCaptor<Category> category_captor = ArgumentCaptor.forClass(Category.class);
+
+        verify(category_repository).existsByName("Category Test");
+        verify(category_repository).save(category_captor.capture());
+
+        Category captured_category = category_captor.getValue();
+        assertEquals("Category Test", captured_category.getName());
+        assertEquals("Test Description", captured_category.getDescription());
+
+        verify(category_repository, times(1)).save(captured_category);
+    }
 
     @Test
-    void testUpdateCategoryIsSuccess() {
+    void test_create_category_throws_duplicate_category_exception() {
+        when(category_repository.existsByName(anyString())).thenReturn(true);
+
+        DuplicateCategoryException exception = assertThrows(DuplicateCategoryException.class, () -> {
+            category_service.createCategory(create_category_request);
+        });
+
+        assertEquals("DUPLICATE_CATEGORY", exception.getMessage());
+        verify(category_repository, times(1)).existsByName("Category Test");
+        verify(category_repository, times(0)).save(any());
+    }
+
+    @Test
+    void test_update_category_is_success() {
         category.setId(1L);
-        UpdateCategoryRequest updateCategoryRequest = new UpdateCategoryRequest("Updated Category Test", "Updated Description");
+        UpdateCategoryRequest update_category_request = new UpdateCategoryRequest("Updated Category Test", "Updated Description");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(categoryRepository.save(any(Category.class))).thenReturn(category);
+        when(category_repository.findById(1L)).thenReturn(Optional.of(category));
+        when(category_repository.save(any(Category.class))).thenReturn(category);
 
-        CategoryDTO updatedCategoryDTO = categoryService.updateCategory(1L, updateCategoryRequest);
+        CategoryDTO updated_category_dto = category_service.updateCategory(1L, update_category_request);
 
-        assertNotNull(updatedCategoryDTO);
-        assertEquals("Category Test", updatedCategoryDTO.getName());
-        assertEquals("Test Description", updatedCategoryDTO.getDescription());
+        assertNotNull(updated_category_dto);
+        assertEquals("Category Test", updated_category_dto.getName());
+        assertEquals("Test Description", updated_category_dto.getDescription());
 
-        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
+        ArgumentCaptor<Category> category_captor = ArgumentCaptor.forClass(Category.class);
 
-        verify(categoryRepository).findById(1L);
-        verify(categoryRepository).save(categoryCaptor.capture());
+        verify(category_repository).findById(1L);
+        verify(category_repository).save(category_captor.capture());
 
-        Category capturedCategory = categoryCaptor.getValue();
-        assertEquals("Updated Category Test", capturedCategory.getName());
-        assertEquals("Updated Description", capturedCategory.getDescription());
+        Category captured_category = category_captor.getValue();
+        assertEquals("Updated Category Test", captured_category.getName());
+        assertEquals("Updated Description", captured_category.getDescription());
 
-        verify(categoryRepository, times(1)).save(capturedCategory);
+        verify(category_repository, times(1)).save(captured_category);
     }
 
     @Test
-        void testUpdateCategoryCategoryNotFound() {
-            when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+    void test_update_category_category_not_found() {
+        when(category_repository.findById(1L)).thenReturn(Optional.empty());
 
-            CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
-                categoryService.updateCategory(1L, updateCategoryRequest);
-            });
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
+            category_service.updateCategory(1L, update_category_request);
+        });
 
-            assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
-            verify(categoryRepository, times(1)).findById(1L);
-            verify(categoryRepository, times(0)).save(any());
-        }
-
-        @Test
-        void testDeleteCategoryIsSuccess() {
-            when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-            doNothing().when(categoryRepository).delete(any(Category.class));
-
-            categoryService.deleteCategory(1L);
-
-            verify(categoryRepository, times(1)).findById(1L);
-            verify(categoryRepository, times(1)).delete(category);
-        }
-
-        @Test
-        void testDeleteCategoryCategoryNotFound() {
-            when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-            CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
-                categoryService.deleteCategory(1L);
-            });
-
-            assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
-            verify(categoryRepository, times(1)).findById(1L);
-            verify(categoryRepository, times(0)).delete(any());
-        }
-
-        @Test
-        void testGetAllCategoriesIsSuccess() {
-            when(categoryRepository.findAll()).thenReturn(List.of(category));
-
-            List<CategoryDTO> categories = categoryService.getAllCategories();
-
-            assertNotNull(categories);
-            assertEquals(1, categories.size());
-            assertEquals("Category Test", categories.get(0).getName());
-            verify(categoryRepository, times(1)).findAll();
-        }
-
-        @Test
-        void testGetCategoryByIdIsSuccess() {
-            when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-
-            CategoryDTO categoryDTO = categoryService.getCategoryById(1L);
-
-            assertNotNull(categoryDTO);
-            assertEquals("Category Test", categoryDTO.getName());
-            verify(categoryRepository, times(1)).findById(1L);
-        }
-
-        @Test
-        void testGetCategoryByIdCategoryNotFound() {
-            when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-            CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
-                categoryService.getCategoryById(1L);
-            });
-
-            assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
-            verify(categoryRepository, times(1)).findById(1L);
-        }
+        assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
+        verify(category_repository, times(1)).findById(1L);
+        verify(category_repository, times(0)).save(any());
     }
+
+    @Test
+    void test_delete_category_is_success() {
+        when(category_repository.findById(1L)).thenReturn(Optional.of(category));
+        doNothing().when(category_repository).delete(any(Category.class));
+
+        category_service.deleteCategory(1L);
+
+        verify(category_repository, times(1)).findById(1L);
+        verify(category_repository, times(1)).delete(category);
+    }
+
+    @Test
+    void test_delete_category_category_not_found() {
+        when(category_repository.findById(1L)).thenReturn(Optional.empty());
+
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
+            category_service.deleteCategory(1L);
+        });
+
+        assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
+        verify(category_repository, times(1)).findById(1L);
+        verify(category_repository, times(0)).delete(any());
+    }
+
+    @Test
+    void test_get_all_categories_is_success() {
+        when(category_repository.findAll()).thenReturn(List.of(category));
+
+        List<CategoryDTO> categories = category_service.getAllCategories();
+
+        assertNotNull(categories);
+        assertEquals(1, categories.size());
+        assertEquals("Category Test", categories.get(0).getName());
+        verify(category_repository, times(1)).findAll();
+    }
+
+    @Test
+    void test_get_category_by_id_is_success() {
+        when(category_repository.findById(1L)).thenReturn(Optional.of(category));
+
+        CategoryDTO category_dto = category_service.getCategoryById(1L);
+
+        assertNotNull(category_dto);
+        assertEquals("Category Test", category_dto.getName());
+        verify(category_repository, times(1)).findById(1L);
+    }
+
+    @Test
+    void test_get_category_by_id_category_not_found() {
+        when(category_repository.findById(1L)).thenReturn(Optional.empty());
+
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> {
+            category_service.getCategoryById(1L);
+        });
+
+        assertEquals("CATEGORY_NOT_FOUND", exception.getMessage());
+        verify(category_repository, times(1)).findById(1L);
+    }
+}

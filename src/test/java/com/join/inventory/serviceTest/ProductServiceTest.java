@@ -21,14 +21,14 @@ import java.util.Optional;
 class ProductServiceTest {
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductRepository product_repository;
 
     @InjectMocks
-    private ProductService productService;
+    private ProductService product_service;
 
     private Product product;
-    private CreateProductRequest createProductRequest;
-    private UpdateProductRequest updateProductRequest;
+    private CreateProductRequest create_product_request;
+    private UpdateProductRequest update_product_request;
 
     @BeforeEach
     void setUp() {
@@ -41,135 +41,134 @@ class ProductServiceTest {
                 .price(BigDecimal.valueOf(10))
                 .categoryId(1L)
                 .build();
-        createProductRequest = new CreateProductRequest("Product 1", "Description", BigDecimal.valueOf(100), 1L);
-        updateProductRequest = new UpdateProductRequest("Updated Product", "Updated Description", BigDecimal.valueOf(150), 2L);
+        create_product_request = new CreateProductRequest("Product 1", "Description", BigDecimal.valueOf(100), 1L);
+        update_product_request = new UpdateProductRequest("Updated Product", "Updated Description", BigDecimal.valueOf(150), 2L);
     }
 
     @Test
-    void testCreateProductIsSuccess() {
-        when(productRepository.existsByName(createProductRequest.getName())).thenReturn(false);
-        when(productRepository.save(any(Product.class))).thenReturn(product);
+    void test_create_product_is_success() {
+        when(product_repository.existsByName(create_product_request.getName())).thenReturn(false);
+        when(product_repository.save(any(Product.class))).thenReturn(product);
 
-        ProductDTO createdProductDTO = productService.createProduct(createProductRequest);
+        ProductDTO created_product_dto = product_service.createProduct(create_product_request);
 
-        assertNotNull(createdProductDTO);
-        assertEquals("Product 1", createdProductDTO.getName());
-        assertEquals("Description", createdProductDTO.getDescription());
-        assertEquals(BigDecimal.valueOf(1000), createdProductDTO.getPriceInCents());
-        assertEquals(1L, createdProductDTO.getCategoryId());
-        verify(productRepository, times(1)).existsByName("Product 1");
-        verify(productRepository, times(1)).save(any(Product.class));
+        assertNotNull(created_product_dto);
+        assertEquals("Product 1", created_product_dto.getName());
+        assertEquals("Description", created_product_dto.getDescription());
+        assertEquals(BigDecimal.valueOf(1000), created_product_dto.getPriceInCents());
+        assertEquals(1L, created_product_dto.getCategoryId());
+        verify(product_repository, times(1)).existsByName("Product 1");
+        verify(product_repository, times(1)).save(any(Product.class));
     }
 
     @Test
-    void testCreateProductThrowsDuplicateProductException() {
-        when(productRepository.existsByName(createProductRequest.getName())).thenReturn(true);
+    void test_create_product_throws_duplicate_product_exception() {
+        when(product_repository.existsByName(create_product_request.getName())).thenReturn(true);
 
-        assertThrows(DuplicateProductException.class, () -> productService.createProduct(createProductRequest));
-        verify(productRepository, times(1)).existsByName("Product 1");
+        assertThrows(DuplicateProductException.class, () -> product_service.createProduct(create_product_request));
+        verify(product_repository, times(1)).existsByName("Product 1");
     }
 
     @Test
-    void testGetProductDetailsIsSuccess() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+    void test_get_product_details_is_success() {
+        when(product_repository.findById(1L)).thenReturn(Optional.of(product));
 
-        ProductDTO productDTO = productService.getProductDetails(1L);
+        ProductDTO product_dto = product_service.getProductDetails(1L);
 
-        assertNotNull(productDTO);
-        assertEquals("Product 1", productDTO.getName());
-        assertEquals("Description", productDTO.getDescription());
-        assertEquals(BigDecimal.valueOf(1000), productDTO.getPriceInCents());
-        verify(productRepository, times(1)).findById(1L);
+        assertNotNull(product_dto);
+        assertEquals("Product 1", product_dto.getName());
+        assertEquals("Description", product_dto.getDescription());
+        assertEquals(BigDecimal.valueOf(1000), product_dto.getPriceInCents());
+        verify(product_repository, times(1)).findById(1L);
     }
 
     @Test
-    void testGetProductDetailsThrowsProductNotFoundException() {
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+    void test_get_product_details_throws_product_not_found_exception() {
+        when(product_repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ProductNotFoundException.class, () -> productService.getProductDetails(1L));
-        verify(productRepository, times(1)).findById(1L);
+        assertThrows(ProductNotFoundException.class, () -> product_service.getProductDetails(1L));
+        verify(product_repository, times(1)).findById(1L);
     }
 
     @Test
-    void testGetProductsByCategoryIsSuccess() {
+    void test_get_products_by_category_is_success() {
         List<Product> products = List.of(product);
-        when(productRepository.findByCategoryId(1L)).thenReturn(products);
+        when(product_repository.findByCategoryId(1L)).thenReturn(products);
 
-        List<ProductDTO> productDTOs = productService.getProductsByCategory(1L);
+        List<ProductDTO> product_dtos = product_service.getProductsByCategory(1L);
 
-        assertNotNull(productDTOs);
-        assertEquals(1, productDTOs.size());
-        assertEquals("Product 1", productDTOs.getFirst().getName());
-        verify(productRepository, times(1)).findByCategoryId(1L);
+        assertNotNull(product_dtos);
+        assertEquals(1, product_dtos.size());
+        assertEquals("Product 1", product_dtos.get(0).getName());
+        verify(product_repository, times(1)).findByCategoryId(1L);
     }
 
     @Test
-    void testGetProductsByCategoryThrowsProductNotFoundException() {
-        when(productRepository.findByCategoryId(1L)).thenReturn(List.of());
+    void test_get_products_by_category_throws_product_not_found_exception() {
+        when(product_repository.findByCategoryId(1L)).thenReturn(List.of());
 
-        assertThrows(ProductNotFoundException.class, () -> productService.getProductsByCategory(1L));
-        verify(productRepository, times(1)).findByCategoryId(1L);
+        assertThrows(ProductNotFoundException.class, () -> product_service.getProductsByCategory(1L));
+        verify(product_repository, times(1)).findByCategoryId(1L);
     }
 
     @Test
-    void testGetAllProductsIsSuccess() {
+    void test_get_all_products_is_success() {
         List<Product> products = List.of(product);
-        when(productRepository.findAll()).thenReturn(products);
+        when(product_repository.findAll()).thenReturn(products);
 
-        List<ProductDTO> productDTOs = productService.getAllProducts();
+        List<ProductDTO> product_dtos = product_service.getAllProducts();
 
-        assertNotNull(productDTOs);
-        assertEquals(1, productDTOs.size());
-        assertEquals("Product 1", productDTOs.get(0).getName());
-        verify(productRepository, times(1)).findAll();
+        assertNotNull(product_dtos);
+        assertEquals(1, product_dtos.size());
+        assertEquals("Product 1", product_dtos.get(0).getName());
+        verify(product_repository, times(1)).findAll();
     }
 
     @Test
-    void testUpdateProductIsSuccess() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenReturn(product);
+    void test_update_product_is_success() {
+        when(product_repository.findById(1L)).thenReturn(Optional.of(product));
+        when(product_repository.save(any(Product.class))).thenReturn(product);
 
-        ProductDTO updatedProductDTO = productService.updateProduct(1L, updateProductRequest);
+        ProductDTO updated_product_dto = product_service.updateProduct(1L, update_product_request);
 
-        assertNotNull(updatedProductDTO);
-        assertEquals("Product 1", updatedProductDTO.getName());
-        assertEquals("Description", updatedProductDTO.getDescription());
+        assertNotNull(updated_product_dto);
+        assertEquals("Product 1", updated_product_dto.getName());
+        assertEquals("Description", updated_product_dto.getDescription());
 
-        assertEquals(1, updatedProductDTO.getPriceInCents().compareTo(BigDecimal.valueOf(150)));
-        verify(productRepository, times(1)).findById(1L);
-        verify(productRepository, times(1)).save(any(Product.class));
-    }
-
-
-    @Test
-    void testUpdateProductWithBlankFields() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenReturn(product);
-
-        UpdateProductRequest blankUpdateRequest = new UpdateProductRequest("", "", null, null);
-        ProductDTO updatedProductDTO = productService.updateProduct(1L, blankUpdateRequest);
-
-        assertNotNull(updatedProductDTO);
-        assertEquals("Product 1", updatedProductDTO.getName());
-        assertEquals("Description", updatedProductDTO.getDescription());
-        assertEquals(BigDecimal.valueOf(1000), updatedProductDTO.getPriceInCents());
+        assertEquals(1, updated_product_dto.getPriceInCents().compareTo(BigDecimal.valueOf(150)));
+        verify(product_repository, times(1)).findById(1L);
+        verify(product_repository, times(1)).save(any(Product.class));
     }
 
     @Test
-    void testDeleteProductIsSuccess() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+    void test_update_product_with_blank_fields() {
+        when(product_repository.findById(1L)).thenReturn(Optional.of(product));
+        when(product_repository.save(any(Product.class))).thenReturn(product);
 
-        productService.deleteProduct(1L);
+        UpdateProductRequest blank_update_request = new UpdateProductRequest("", "", null, null);
+        ProductDTO updated_product_dto = product_service.updateProduct(1L, blank_update_request);
 
-        verify(productRepository, times(1)).findById(1L);
-        verify(productRepository, times(1)).delete(product);
+        assertNotNull(updated_product_dto);
+        assertEquals("Product 1", updated_product_dto.getName());
+        assertEquals("Description", updated_product_dto.getDescription());
+        assertEquals(BigDecimal.valueOf(1000), updated_product_dto.getPriceInCents());
     }
 
     @Test
-    void testDeleteProductThrowsProductNotFoundException() {
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+    void test_delete_product_is_success() {
+        when(product_repository.findById(1L)).thenReturn(Optional.of(product));
 
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
-        verify(productRepository, times(1)).findById(1L);
+        product_service.deleteProduct(1L);
+
+        verify(product_repository, times(1)).findById(1L);
+        verify(product_repository, times(1)).delete(product);
+    }
+
+    @Test
+    void test_delete_product_throws_product_not_found_exception() {
+        when(product_repository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ProductNotFoundException.class, () -> product_service.deleteProduct(1L));
+        verify(product_repository, times(1)).findById(1L);
     }
 }

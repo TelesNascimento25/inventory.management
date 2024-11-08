@@ -29,28 +29,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ProductControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mock_mvc;
 
     @MockBean
-    private ProductService productService;
+    private ProductService product_service;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper object_mapper;
 
-    private ProductDTO productDTO;
+    private ProductDTO product_dto;
 
     @BeforeEach
     void setUp() {
-        productDTO = new ProductDTO(1L, "Product Test", "Description of Product Test 1", new BigDecimal("10000.00"), 1L);
+        product_dto = new ProductDTO(1L, "Product Test", "Description of Product Test 1", new BigDecimal("10000.00"), 1L);
     }
 
     @Test
-    void testCreateProduct() throws Exception {
+    void test_create_product() throws Exception {
         CreateProductRequest request = new CreateProductRequest("Product Test", "Description of Product Test 1", new BigDecimal("10000"), 1L);
 
-        when(productService.createProduct(any(CreateProductRequest.class))).thenReturn(productDTO);
+        when(product_service.createProduct(any(CreateProductRequest.class))).thenReturn(product_dto);
 
-        mockMvc.perform(post("/products")
+        mock_mvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Product Test\", \"description\": \"Description of Product Test 1\", \"priceInCents\": 10000, \"categoryId\": 1}"))
                 .andExpect(status().isCreated())
@@ -58,61 +58,61 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.name").value("Product Test"))
                 .andExpect(jsonPath("$.priceInCents").value(10000));
 
-        verify(productService, times(1)).createProduct(any(CreateProductRequest.class));
+        verify(product_service, times(1)).createProduct(any(CreateProductRequest.class));
     }
 
     @Test
-    void testGetProductDetails() throws Exception {
-        when(productService.getProductDetails(anyLong())).thenReturn(productDTO);
+    void test_get_product_details() throws Exception {
+        when(product_service.getProductDetails(anyLong())).thenReturn(product_dto);
 
-        mockMvc.perform(get("/products/{id}", 1L)
+        mock_mvc.perform(get("/products/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Product Test"));
 
-        verify(productService, times(1)).getProductDetails(1L);
+        verify(product_service, times(1)).getProductDetails(1L);
     }
 
     @Test
-    void testGetAllProducts() throws Exception {
-        when(productService.getAllProducts()).thenReturn(List.of(productDTO));
+    void test_get_all_products() throws Exception {
+        when(product_service.getAllProducts()).thenReturn(List.of(product_dto));
 
-        mockMvc.perform(get("/products")
+        mock_mvc.perform(get("/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].name").value("Product Test"));
 
-        verify(productService, times(1)).getAllProducts();
+        verify(product_service, times(1)).getAllProducts();
     }
 
     @Test
-    void testUpdateProduct() throws Exception {
-        var updateRequest = new UpdateProductRequest("Updated Product", "Updated Description", new BigDecimal("15000"), 2L);
+    void test_update_product() throws Exception {
+        var update_request = new UpdateProductRequest("Updated Product", "Updated Description", new BigDecimal("15000"), 2L);
 
-        productDTO = new ProductDTO(1L, "Updated Product", "Updated Description", new BigDecimal("15000"), 2L);
+        product_dto = new ProductDTO(1L, "Updated Product", "Updated Description", new BigDecimal("15000"), 2L);
 
-        when(productService.updateProduct(anyLong(), any())).thenReturn(productDTO);
+        when(product_service.updateProduct(anyLong(), any())).thenReturn(product_dto);
 
-        mockMvc.perform(put("/products/{id}", 1L)
+        mock_mvc.perform(put("/products/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
+                        .content(object_mapper.writeValueAsString(update_request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Product"))
                 .andExpect(jsonPath("$.description").value("Updated Description"))
                 .andExpect(jsonPath("$.priceInCents").value(15000));  // Checa se priceInCents é 15000
 
-        verify(productService, times(1)).updateProduct(anyLong(), any());
+        verify(product_service, times(1)).updateProduct(anyLong(), any());
     }
 
     @Test
-    void testDeleteProduct() throws Exception {
-        doNothing().when(productService).deleteProduct(anyLong());
+    void test_delete_product() throws Exception {
+        doNothing().when(product_service).deleteProduct(anyLong());
 
-        mockMvc.perform(delete("/products/{id}", 1L)
+        mock_mvc.perform(delete("/products/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(productService, times(1)).deleteProduct(1L);
+        verify(product_service, times(1)).deleteProduct(1L);
     }
 }

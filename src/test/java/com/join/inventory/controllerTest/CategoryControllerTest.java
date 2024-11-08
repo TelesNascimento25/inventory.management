@@ -27,89 +27,89 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CategoryControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mock_mvc;
 
     @MockBean
-    private CategoryService categoryService;
+    private CategoryService category_service;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper object_mapper;
 
     @Test
-    void testCreateCategory() throws Exception {
-        var createCategoryRequest = new CreateCategoryRequest("Category Test", "Description Test");
+    void test_create_category() throws Exception {
+        var create_category_request = new CreateCategoryRequest("Category Test", "Description Test");
 
-        CategoryDTO categoryDTO = new CategoryDTO(1L, "Category Test", "Description Test");
+        CategoryDTO category_dto = new CategoryDTO(1L, "Category Test", "Description Test");
 
-        when(categoryService.createCategory(any())).thenReturn(categoryDTO);
+        when(category_service.createCategory(any())).thenReturn(category_dto);
 
-        mockMvc.perform(post("/categories")
+        mock_mvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createCategoryRequest)))
+                        .content(object_mapper.writeValueAsString(create_category_request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Category Test"));
 
-        verify(categoryService, times(1)).createCategory(any());
+        verify(category_service, times(1)).createCategory(any());
     }
 
     @Test
-    void testUpdateCategory() throws Exception {
-        var updateCategoryRequest = new UpdateCategoryRequest("Updated Category", "Description Test");
+    void test_update_category() throws Exception {
+        var update_category_request = new UpdateCategoryRequest("Updated Category", "Description Test");
 
-        CategoryDTO categoryDTO = new CategoryDTO(1L, "Updated Category", "Description Test");
+        CategoryDTO category_dto = new CategoryDTO(1L, "Updated Category", "Description Test");
 
-        when(categoryService.updateCategory(anyLong(), any())).thenReturn(categoryDTO);
+        when(category_service.updateCategory(anyLong(), any())).thenReturn(category_dto);
 
-        mockMvc.perform(put("/categories/{categoryId}", 1L)
+        mock_mvc.perform(put("/categories/{categoryId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateCategoryRequest)))
+                        .content(object_mapper.writeValueAsString(update_category_request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Updated Category"));
 
-        verify(categoryService, times(1)).updateCategory(anyLong(), any());
+        verify(category_service, times(1)).updateCategory(anyLong(), any());
     }
 
     @Test
-    void testDeleteCategory() throws Exception {
-        doNothing().when(categoryService).deleteCategory(anyLong());
+    void test_delete_category() throws Exception {
+        doNothing().when(category_service).deleteCategory(anyLong());
 
-        mockMvc.perform(delete("/categories/{categoryId}", 1L))
+        mock_mvc.perform(delete("/categories/{categoryId}", 1L))
                 .andExpect(status().isNoContent());
 
-        verify(categoryService, times(1)).deleteCategory(anyLong());
+        verify(category_service, times(1)).deleteCategory(anyLong());
     }
 
     @Test
-    void testGetAllCategories() throws Exception {
-        List<CategoryDTO> categoryList = List.of(
+    void test_get_all_categories() throws Exception {
+        List<CategoryDTO> category_list = List.of(
                 new CategoryDTO(1L, "Category Test 1", "Description Test 1"),
                 new CategoryDTO(2L, "Category Test 2", "Description Test 2")
         );
 
-        when(categoryService.getAllCategories()).thenReturn(categoryList);
+        when(category_service.getAllCategories()).thenReturn(category_list);
 
-        mockMvc.perform(get("/categories"))
+        mock_mvc.perform(get("/categories"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[1].name").value("Category Test 2"));
 
-        verify(categoryService, times(1)).getAllCategories();
+        verify(category_service, times(1)).getAllCategories();
     }
 
     @Test
-    void testGetCategoryById() throws Exception {
-        CategoryDTO categoryDTO = new CategoryDTO(1L, "Category Test", "Description Test");
+    void test_get_category_by_id() throws Exception {
+        CategoryDTO category_dto = new CategoryDTO(1L, "Category Test", "Description Test");
 
-        when(categoryService.getCategoryById(anyLong())).thenReturn(categoryDTO);
+        when(category_service.getCategoryById(anyLong())).thenReturn(category_dto);
 
-        mockMvc.perform(get("/categories/{categoryId}", 1L))
+        mock_mvc.perform(get("/categories/{categoryId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Category Test"));
 
-        verify(categoryService, times(1)).getCategoryById(anyLong());
+        verify(category_service, times(1)).getCategoryById(anyLong());
     }
 }

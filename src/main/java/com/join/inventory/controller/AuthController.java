@@ -1,34 +1,31 @@
 package com.join.inventory.controller;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import com.join.inventory.model.User;
+import com.join.inventory.model.dto.LoginRequest;
+import com.join.inventory.repository.UserRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.join.inventory.model.dto.LoginRequest;
-import com.join.inventory.util.JwtTokenUtil;
-
 @RestController
+@RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenUtil jwtTokenUtil;
-
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body("Login successful");
+    }
 
-        return jwtTokenUtil.generateToken(authentication.getName());
+    @PostMapping("/register")
+    public ResponseEntity<String> createUser(@RequestBody User newUser) {
+        userRepository.save(newUser);
+        return ResponseEntity.ok("User created successfully");
     }
 }
