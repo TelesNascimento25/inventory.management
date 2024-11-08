@@ -1,36 +1,30 @@
 package com.join.inventory.controller;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.join.inventory.model.dto.CreateProductRequest;
 import com.join.inventory.model.dto.ProductDTO;
 import com.join.inventory.model.dto.UpdateProductRequest;
 import com.join.inventory.service.ProductService;
-
+import com.join.inventory.util.Converter;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+    private final Converter converter;
 
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody @Valid CreateProductRequest createProductRequest) {
@@ -45,16 +39,30 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts(@RequestParam(value = "category", required = false) Long categoryId) {
-        var products = Optional.ofNullable(categoryId)
-            .map(productService::getProductsByCategory)
-            .orElseGet(productService::getAllProducts);
+    public ResponseEntity<Map<String, Object>> getAllProducts(
+            @RequestParam(value = "category", required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort,
+            @RequestParam(value = "filterText", required = false) String filterText) {
 
-        if (products.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        try {
+            Sort sortOrder = converter.convertToSort(sort);
+
+            Page<ProductDTO> productPage = Optional.ofNullable(categoryId)
+                    .map(id -> productService.getProductsByCategory(id, page, size, sortOrder, filterText))
+                    .orElseGet(() -> productService.getAllProducts(page, size, sortOrder, filterText));
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", productPage.getContent());
+            response.put("currentPage", productPage.getNumber());
+            response.put("totalItems", productPage.getTotalElements());
+            response.put("totalPages", productPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-
-        return ResponseEntity.ok(products);
     }
 
     @PutMapping("/{productId}")

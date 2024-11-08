@@ -10,16 +10,16 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class CategoryDTO {
-    
+
     private Long id;
     private String name;
     private String description;
 
     public static CategoryDTO fromCategory(Category category) {
         return CategoryDTO.builder()
-            .id(category.getId())
-            .name(category.getName())
-            .description(category.getDescription())
-        .build();
+                .id(category.getId())
+                .name(category.getName())
+                .description(category.getDescription())
+                .build();
     }
 }

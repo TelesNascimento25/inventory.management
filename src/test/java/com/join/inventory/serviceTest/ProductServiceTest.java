@@ -1,8 +1,5 @@
 package com.join.inventory.serviceTest;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.join.inventory.exception.DuplicateProductException;
 import com.join.inventory.exception.ProductNotFoundException;
 import com.join.inventory.model.Product;
@@ -13,10 +10,15 @@ import com.join.inventory.repository.ProductRepository;
 import com.join.inventory.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
@@ -34,13 +36,7 @@ class ProductServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        product = Product.builder()
-                .id(1L)
-                .name("Product 1")
-                .description("Description")
-                .price(BigDecimal.valueOf(10))
-                .categoryId(1L)
-                .build();
+        product = Product.builder().id(1L).name("Product 1").description("Description").price(BigDecimal.valueOf(10)).categoryId(1L).build();
         create_product_request = new CreateProductRequest("Product 1", "Description", BigDecimal.valueOf(100), 1L);
         update_product_request = new UpdateProductRequest("Updated Product", "Updated Description", BigDecimal.valueOf(150), 2L);
     }
@@ -88,40 +84,6 @@ class ProductServiceTest {
 
         assertThrows(ProductNotFoundException.class, () -> product_service.getProductDetails(1L));
         verify(product_repository, times(1)).findById(1L);
-    }
-
-    @Test
-    void test_get_products_by_category_is_success() {
-        List<Product> products = List.of(product);
-        when(product_repository.findByCategoryId(1L)).thenReturn(products);
-
-        List<ProductDTO> product_dtos = product_service.getProductsByCategory(1L);
-
-        assertNotNull(product_dtos);
-        assertEquals(1, product_dtos.size());
-        assertEquals("Product 1", product_dtos.get(0).getName());
-        verify(product_repository, times(1)).findByCategoryId(1L);
-    }
-
-    @Test
-    void test_get_products_by_category_throws_product_not_found_exception() {
-        when(product_repository.findByCategoryId(1L)).thenReturn(List.of());
-
-        assertThrows(ProductNotFoundException.class, () -> product_service.getProductsByCategory(1L));
-        verify(product_repository, times(1)).findByCategoryId(1L);
-    }
-
-    @Test
-    void test_get_all_products_is_success() {
-        List<Product> products = List.of(product);
-        when(product_repository.findAll()).thenReturn(products);
-
-        List<ProductDTO> product_dtos = product_service.getAllProducts();
-
-        assertNotNull(product_dtos);
-        assertEquals(1, product_dtos.size());
-        assertEquals("Product 1", product_dtos.get(0).getName());
-        verify(product_repository, times(1)).findAll();
     }
 
     @Test

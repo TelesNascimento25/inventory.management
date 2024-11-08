@@ -1,20 +1,19 @@
 package com.join.inventory.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.join.inventory.exception.CategoryNotFoundException;
 import com.join.inventory.exception.DuplicateCategoryException;
 import com.join.inventory.model.Category;
-import com.join.inventory.model.dto.CreateCategoryRequest;
 import com.join.inventory.model.dto.CategoryDTO;
+import com.join.inventory.model.dto.CreateCategoryRequest;
 import com.join.inventory.model.dto.UpdateCategoryRequest;
 import com.join.inventory.repository.CategoryRepository;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
@@ -28,9 +27,9 @@ public class CategoryService {
         }
 
         var category = Category.builder()
-            .name(createCategoryRequest.getName())
-            .description(createCategoryRequest.getDescription())
-        .build();
+                .name(createCategoryRequest.getName())
+                .description(createCategoryRequest.getDescription())
+                .build();
 
         categoryRepository.save(category);
 
@@ -40,10 +39,10 @@ public class CategoryService {
     public CategoryDTO updateCategory(Long categoryId, UpdateCategoryRequest updateCategoryRequest) {
         var category = findCategoryById(categoryId);
         category = Category.builder()
-            .id(category.getId())
-            .name(StringUtils.defaultIfBlank(updateCategoryRequest.getName().trim(), category.getName()))
-            .description(StringUtils.defaultIfBlank(updateCategoryRequest.getDescription().trim(), category.getDescription()))
-        .build();
+                .id(category.getId())
+                .name(StringUtils.defaultIfBlank(updateCategoryRequest.getName().trim(), category.getName()))
+                .description(StringUtils.defaultIfBlank(updateCategoryRequest.getDescription().trim(), category.getDescription()))
+                .build();
 
         category = categoryRepository.save(category);
 
@@ -55,10 +54,18 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    public List<CategoryDTO> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(CategoryDTO::fromCategory)
-                .collect(Collectors.toList());
+    public Page<CategoryDTO> getCategories(int page, int size, Sort sort, String filterText) {
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Category> categoryPage;
+
+        if (filterText != null && !filterText.isEmpty()) {
+            categoryPage = categoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                    filterText, filterText, pageable);
+        } else {
+            categoryPage = categoryRepository.findAll(pageable);
+        }
+
+        return categoryPage.map(CategoryDTO::fromCategory);
     }
 
     public CategoryDTO getCategoryById(Long categoryId) {
@@ -70,4 +77,5 @@ public class CategoryService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
+
 }

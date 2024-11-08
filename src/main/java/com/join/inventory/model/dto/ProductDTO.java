@@ -8,14 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProductDTO {
-    
+
     private Long id;
     private String name;
     private String description;
@@ -24,11 +23,11 @@ public class ProductDTO {
 
     public static ProductDTO fromProduct(Product product) {
         return ProductDTO.builder()
-            .id(product.getId())
-            .name(product.getName())
-            .description(product.getDescription())
-            .priceInCents(product.getPrice().multiply(BigDecimal.valueOf(100)))
-            .categoryId(product.getCategoryId())
-        .build();
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .priceInCents(product.getPrice().multiply(BigDecimal.valueOf(100)))
+                .categoryId(product.getCategoryId())
+                .build();
     }
 }

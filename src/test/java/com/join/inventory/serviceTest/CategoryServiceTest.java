@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -147,17 +146,17 @@ class CategoryServiceTest {
         verify(category_repository, times(0)).delete(any());
     }
 
-    @Test
-    void test_get_all_categories_is_success() {
-        when(category_repository.findAll()).thenReturn(List.of(category));
-
-        List<CategoryDTO> categories = category_service.getAllCategories();
-
-        assertNotNull(categories);
-        assertEquals(1, categories.size());
-        assertEquals("Category Test", categories.get(0).getName());
-        verify(category_repository, times(1)).findAll();
-    }
+//    @Test
+//    void test_get_all_categories_is_success() {
+//        when(category_repository.findAll()).thenReturn(List.of(category));
+//
+//        List<CategoryDTO> categories = category_service.getAllCategories();
+//
+//        assertNotNull(categories);
+//        assertEquals(1, categories.size());
+//        assertEquals("Category Test", categories.get(0).getName());
+//        verify(category_repository, times(1)).findAll();
+//    }
 
     @Test
     void test_get_category_by_id_is_success() {

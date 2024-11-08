@@ -1,25 +1,11 @@
 package com.join.inventory.model;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "categories")
@@ -30,18 +16,18 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 public class Category {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private String name;
-	private String description;
+    private String name;
+    private String description;
 
-	@CreationTimestamp
-	@Column(updatable = false)
-	private LocalDateTime createdAt;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-	@UpdateTimestamp
-	@Column(insertable = false)
-	private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    @Column(insertable = false)
+    private LocalDateTime updatedAt;
 }

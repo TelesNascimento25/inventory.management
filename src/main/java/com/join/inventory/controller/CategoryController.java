@@ -1,34 +1,28 @@
 package com.join.inventory.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.join.inventory.model.dto.CreateCategoryRequest;
 import com.join.inventory.model.dto.CategoryDTO;
+import com.join.inventory.model.dto.CreateCategoryRequest;
 import com.join.inventory.model.dto.UpdateCategoryRequest;
 import com.join.inventory.service.CategoryService;
-
+import com.join.inventory.util.Converter;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+    private final Converter converter;
 
     @PostMapping
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody @Valid CreateCategoryRequest createCategoryRequest) {
@@ -50,12 +44,27 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-        var categories = categoryService.getAllCategories();
-        if (categories.isEmpty()) {
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, Object>> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort,
+            @RequestParam(value = "filterText", required = false) String filterText) {
+
+        try {
+            Sort sortOrder = converter.convertToSort(sort);
+
+            Page<CategoryDTO> categoryPage = categoryService.getCategories(page, size, sortOrder, filterText);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("categories", categoryPage.getContent());
+            response.put("currentPage", categoryPage.getNumber());
+            response.put("totalItems", categoryPage.getTotalElements());
+            response.put("totalPages", categoryPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{categoryId}")

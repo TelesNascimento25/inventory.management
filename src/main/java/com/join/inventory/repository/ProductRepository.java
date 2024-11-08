@@ -1,16 +1,19 @@
 package com.join.inventory.repository;
 
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import com.join.inventory.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    List<Product> findByCategoryId(Long categoryId);
     boolean existsByName(String name);
 
+    Page<Product> findByCategoryIdAndNameContainingIgnoreCaseOrCategoryIdAndDescriptionContainingIgnoreCase(Long categoryId, String nameFilter, Long categoryId2, String descriptionFilter, Pageable pageable);
+
+    Page<Product> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String nameFilter, String descriptionFilter, Pageable pageable);
+
+    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+
+    Page<Product> findAll(Pageable pageable);
 }
+
